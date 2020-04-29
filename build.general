@@ -1,0 +1,7 @@
+fortify:
+  enabled: true
+  sourceAnalyzer:
+    include:
+    - build/libs/*.jar
+  cloudscan:
+    async: true
