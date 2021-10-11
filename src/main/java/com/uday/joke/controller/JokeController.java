@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import java.util.Map;
 
 @RestController
 public class JokeController {
@@ -28,6 +29,8 @@ public class JokeController {
     private String geekJokeUrl;
     @Value("${dadjoke.url}")
     private String dadJokeUrl;
+
+    private static Map<String, String> env;
     /**
      * Get joke by type
      *
@@ -38,6 +41,11 @@ public class JokeController {
         restTemplate.getInterceptors().add(new BasicAuthorizationInterceptor(username, password));
         ResponseEntity<String> response = null;
         String joke;
+        env = System.getenv();
+        String dataCenter = env.get("DC_NAME");
+        String cluster = env.get("CLUSTER_NAME");
+        String verion = env.get("VERSION");
+
         if(type.equals("geek")){
             response = restTemplate.getForEntity(geekJokeUrl, String.class);
         }
@@ -49,7 +57,8 @@ public class JokeController {
         }
 
         joke = response.getBody();
-        logger.info(type + "Joke> "+joke);
-        return type + "Joke> "+joke;
+        String responseOut = dataCenter + "-" + cluster + "-"+verion + "-"+ type + " Joke> "+joke;
+        logger.info(responseOut);
+        return responseOut;
     }
 }
