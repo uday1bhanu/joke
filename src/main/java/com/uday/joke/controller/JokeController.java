@@ -38,7 +38,18 @@ public class JokeController {
      */
     @RequestMapping(value = "/joke", method = RequestMethod.GET)
     public String joke(@RequestParam String type){
-        restTemplate.getInterceptors().add(new BasicAuthorizationInterceptor(username, password));
+        List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
+
+        boolean basicAuthInterceptorAlreadydded = interceptors.stream().anyMatch(
+                interceptor -> interceptor instanceof BasicAuthorizationInterceptor
+        );
+
+        // The interceptors are reused from one request to another request. So, we only 
+        // want to append the auth header once.
+        if (!basicAuthInterceptorAlreadydded) {
+            interceptors.add(new BasicAuthorizationInterceptor(username, password));
+        }
+        
         ResponseEntity<String> response = null;
         String joke;
         env = System.getenv();
